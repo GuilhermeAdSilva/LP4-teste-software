@@ -1,0 +1,520 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BGR – Bancada de testes funcionais</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF2F5; --panel:#FFFFFF; --ink:#16232E; --muted:#566673; --line:#D3DCE3;
+  --accent:#0B6E8A; --accent-ink:#FFFFFF; --soft:#E3EFF3;
+  --ok:#17673F; --okbg:#DDF3E6; --warn:#7A4E00; --warnbg:#FBEBC8; --err:#9B2424; --errbg:#F9DADA;
+  --sans:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#0F1A22; --panel:#16232E; --ink:#E6EEF3; --muted:#9AAAB6; --line:#2A3A47;
+    --accent:#5CC0DE; --accent-ink:#06222C; --soft:#1B3140;
+    --ok:#6FD39A; --okbg:#12372A; --warn:#F0C26B; --warnbg:#3B2E10; --err:#F59A9A; --errbg:#431C1C;
+    color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.5 var(--sans)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+header{display:flex;flex-wrap:wrap;gap:12px 28px;align-items:end;justify-content:space-between;padding:18px 24px;background:var(--panel);border-bottom:1px solid var(--line)}
+header h1{margin:0;font-size:1.25rem;line-height:1.2}
+header p{margin:2px 0 0;color:var(--muted);font-size:.9rem}
+.conn{display:flex;gap:10px;align-items:end;flex-wrap:wrap}
+.conn label{display:block;font-size:.85rem;color:var(--muted)}
+.conn input{width:260px}
+.shell{display:grid;grid-template-columns:210px minmax(0,1fr);gap:20px;padding:20px 24px;max-width:1500px;margin:0 auto}
+nav{align-self:start;position:sticky;top:16px}
+nav ul{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+nav button{width:100%;text-align:left;padding:9px 12px;border:1px solid transparent;border-radius:8px;background:none;color:var(--ink);font:inherit;cursor:pointer}
+nav button:hover{background:var(--soft)}
+nav button[aria-current="true"]{background:var(--accent);color:var(--accent-ink);font-weight:700}
+.work{display:grid;gap:20px;min-width:0}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px}
+section{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px;min-width:0}
+section h2{margin:0 0 4px;font-size:1.05rem}
+.sub{margin:0 0 14px;color:var(--muted);font-size:.9rem}
+code,pre,.mono{font-family:var(--mono);font-size:.85rem}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px 14px}
+.field label{display:flex;justify-content:space-between;gap:8px;font-size:.9rem;margin-bottom:3px}
+.field label code{color:var(--muted)}
+input,select,textarea{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:7px;background:var(--bg);color:var(--ink);font:inherit}
+textarea{font-family:var(--mono);font-size:.85rem;min-height:150px;resize:vertical}
+textarea[readonly]{opacity:.8}
+.bar{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+button.btn{padding:9px 14px;border-radius:8px;border:1px solid var(--accent);background:none;color:var(--accent);font:inherit;font-weight:700;cursor:pointer}
+button.btn:hover{background:var(--soft)}
+button.btn.primary{background:var(--accent);color:var(--accent-ink)}
+button.btn.primary:hover{filter:brightness(1.08)}
+button.btn.danger{border-color:var(--err);color:var(--err)}
+button.btn.danger:hover{background:var(--errbg)}
+.row{display:grid;grid-template-columns:1fr 130px;gap:12px;margin-top:14px}
+.row.three{grid-template-columns:1fr 1fr 130px}
+.check{display:flex;gap:8px;align-items:center;margin-top:10px;font-size:.9rem}
+.check input{width:auto}
+.chip{display:inline-block;padding:2px 10px;border-radius:999px;font-weight:700;font-size:.9rem}
+.chip.ok{background:var(--okbg);color:var(--ok)}
+.chip.warn{background:var(--warnbg);color:var(--warn)}
+.chip.err{background:var(--errbg);color:var(--err)}
+.chip.none{background:var(--soft);color:var(--muted)}
+.line{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.meta{color:var(--muted);font-size:.9rem}
+pre{margin:0 0 12px;padding:10px 12px;background:var(--bg);border:1px solid var(--line);border-radius:7px;overflow:auto;max-height:300px;white-space:pre-wrap;word-break:break-word}
+.tag{font-size:.85rem;color:var(--muted);margin:0 0 4px}
+.empty{color:var(--muted);margin:0}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:700;background:var(--bg);position:sticky;top:0}
+td.mono{word-break:break-all}
+.note{margin:10px 0 0;padding:8px 12px;border-left:4px solid var(--warn);background:var(--warnbg);color:var(--warn);border-radius:4px;font-size:.9rem}
+.head{display:flex;justify-content:space-between;align-items:start;gap:12px;flex-wrap:wrap}
+.head .bar{margin-top:0}
+@media (max-width:1000px){.cols{grid-template-columns:1fr}}
+@media (max-width:760px){
+  .shell{grid-template-columns:1fr;padding:14px}
+  nav{position:static}
+  nav ul{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}
+  .conn input{width:100%}
+  .row,.row.three{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Base de Gerenciamento Renal</h1>
+    <p>Bancada de testes funcionais da API</p>
+  </div>
+  <div class="conn">
+    <div>
+      <label for="base">Endereço da API</label>
+      <input id="base" type="text" spellcheck="false" autocomplete="off">
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+  <nav aria-label="Entidades"><ul id="nav"></ul></nav>
+
+  <main class="work">
+    <div class="cols">
+      <section aria-labelledby="t-req">
+        <h2 id="t-req">Requisição</h2>
+        <p class="sub" id="endpoint"></p>
+        <form id="form" novalidate>
+          <div class="fields" id="fields"></div>
+
+          <div class="check">
+            <input type="checkbox" id="emptyNull">
+            <label for="emptyNull">Enviar campos de texto vazios como null (em vez de "")</label>
+          </div>
+
+          <div class="row">
+            <div>
+              <label for="recId" class="tag">ID do registro (usado em Buscar, Atualizar e Excluir)</label>
+              <input id="recId" type="text" class="mono" spellcheck="false" autocomplete="off">
+            </div>
+          </div>
+
+          <div class="check">
+            <input type="checkbox" id="manual">
+            <label for="manual">Editar o JSON manualmente (envia exatamente o que estiver abaixo)</label>
+          </div>
+          <label for="json" class="tag" style="margin-top:8px;display:block">Corpo da requisição</label>
+          <textarea id="json" readonly spellcheck="false"></textarea>
+
+          <div class="row three">
+            <div>
+              <label for="caseName" class="tag">Caso de teste (opcional)</label>
+              <input id="caseName" type="text" placeholder="Ex.: CT-03 e-mail duplicado">
+            </div>
+            <div>
+              <label for="expected" class="tag">Resultado esperado</label>
+              <input id="expected" type="text" inputmode="numeric" placeholder="Ex.: 400">
+            </div>
+            <div></div>
+          </div>
+
+          <div class="bar" role="group" aria-label="Ações">
+            <button type="button" class="btn primary" data-act="post">Criar (POST)</button>
+            <button type="button" class="btn" data-act="put">Atualizar (PUT)</button>
+            <button type="button" class="btn" data-act="get">Buscar por ID (GET)</button>
+            <button type="button" class="btn" data-act="list">Listar (GET)</button>
+            <button type="button" class="btn danger" data-act="del">Excluir (DELETE)</button>
+            <button type="button" class="btn" data-act="clear">Limpar formulário</button>
+          </div>
+        </form>
+      </section>
+
+      <section aria-labelledby="t-res" aria-live="polite">
+        <h2 id="t-res">Resposta</h2>
+        <p class="sub">O que a API devolveu na última chamada.</p>
+        <div id="result"><p class="empty">Nenhuma chamada feita ainda. Preencha o formulário e escolha uma ação.</p></div>
+      </section>
+    </div>
+
+    <section aria-labelledby="t-list">
+      <h2 id="t-list">Registros listados</h2>
+      <div id="list"><p class="empty">Use “Listar (GET)” para carregar os registros desta entidade.</p></div>
+    </section>
+
+    <section aria-labelledby="t-log">
+      <div class="head">
+        <div>
+          <h2 id="t-log">Histórico de execução</h2>
+          <p class="sub" id="logSummary">Nenhuma chamada registrada.</p>
+        </div>
+        <div class="bar">
+          <button type="button" class="btn" id="exportCsv">Exportar CSV</button>
+          <button type="button" class="btn" id="clearLog">Limpar histórico</button>
+        </div>
+      </div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>#</th><th>Hora</th><th>Caso</th><th>Requisição</th><th>Esperado</th><th>Obtido</th><th>Resultado</th></tr></thead>
+          <tbody id="logBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div hidden id="datalists"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- Modelo: espelha os DTOs de requisição do backend ---------- */
+  var ENUMS = {
+    status: ["CANCELED","SCHEDULED","CONFIRMED","COMPLETED","MISSED"],
+    unit: ["MILLIGRAM","GRAM","MICROGRAM","MILLILITER","DROP","PUFF","INTERNATIONAL_UNIT"],
+    alertType: ["BLOOD_PRESSURE","BLOOD_SUGAR","MEDICAL_APPOINTMENT","MEDICINE","WATER_INTAKE","WEIGHT","GENERAL"],
+    alertStatus: ["UNREAD","READ","RESOLVED","DISMISSED"]
+  };
+  var PAT = {n:"idPatient", l:"Paciente (UUID)", t:"ref", ref:"pacientes"};
+
+  var ENTITIES = [
+    {key:"pacientes", label:"Pacientes", path:"pacientes", fields:[
+      {n:"name", l:"Nome", t:"text"},
+      {n:"email", l:"E-mail", t:"text"},
+      {n:"password", l:"Senha", t:"text"},
+      {n:"birthDate", l:"Data de nascimento", t:"date"}]},
+    {key:"doutores", label:"Médicos", path:"doutores", fields:[
+      {n:"name", l:"Nome", t:"text"},
+      {n:"specialty", l:"Especialidade", t:"text"}]},
+    {key:"consultorios", label:"Consultórios", path:"consultorios_medicos", fields:[
+      {n:"doctorsOffice", l:"Nome do local", t:"text"},
+      {n:"country", l:"País", t:"text"},
+      {n:"state", l:"Estado", t:"text"},
+      {n:"city", l:"Cidade", t:"text"},
+      {n:"neighborhood", l:"Bairro", t:"text"},
+      {n:"street", l:"Rua", t:"text"},
+      {n:"number", l:"Número", t:"text"},
+      {n:"complement", l:"Complemento", t:"text"}]},
+    {key:"consultas", label:"Consultas", path:"consultas-medicas", fields:[
+      {n:"dateTime", l:"Data e hora", t:"datetime"},
+      {n:"status", l:"Status", t:"select", o:ENUMS.status},
+      PAT,
+      {n:"idDoctor", l:"Médico (UUID)", t:"ref", ref:"doutores"},
+      {n:"idAddress", l:"Consultório (UUID)", t:"ref", ref:"consultorios"}]},
+    {key:"pressoes", label:"Pressão arterial", path:"pressoes", fields:[
+      {n:"bloodPressureLevel", l:"Nível de pressão", t:"int"}, PAT]},
+    {key:"glicoses", label:"Glicemia", path:"glicoses", fields:[
+      {n:"glucoseLevel", l:"Nível de glicose", t:"int"}, PAT]},
+    {key:"pesos", label:"Peso", path:"pesos", fields:[
+      {n:"weightRecord", l:"Peso", t:"float"}, PAT]},
+    {key:"medicamentos", label:"Medicamentos", path:"medicamentos", fields:[
+      {n:"name", l:"Nome", t:"text"},
+      {n:"dosage", l:"Dosagem", t:"float"},
+      {n:"measurementUnit", l:"Unidade de medida", t:"select", o:ENUMS.unit}, PAT]},
+    {key:"agua", label:"Consumo de água", path:"consumo-de-agua", fields:[
+      {n:"amountMl", l:"Quantidade (mL)", t:"int"},
+      {n:"dateTime", l:"Data e hora", t:"datetime"}, PAT]},
+    {key:"alertas", label:"Alertas", path:"alertas", fields:[
+      {n:"description", l:"Descrição", t:"text"},
+      {n:"alertType", l:"Tipo", t:"select", o:ENUMS.alertType},
+      {n:"triggerDateTime", l:"Disparo", t:"datetime"},
+      {n:"alertStatus", l:"Situação", t:"select", o:ENUMS.alertStatus}, PAT]}
+  ];
+
+  /* ---------- Utilidades ---------- */
+  function $(s, r){ return (r || document).querySelector(s); }
+  function h(tag, props){
+    var e = document.createElement(tag);
+    props = props || {};
+    Object.keys(props).forEach(function(k){
+      var v = props[k];
+      if (v === false || v == null) return;
+      if (k === "class") e.className = v;
+      else if (k.indexOf("on") === 0) e.addEventListener(k.slice(2), v);
+      else if (v === true) e.setAttribute(k, "");
+      else e.setAttribute(k, v);
+    });
+    var kids = Array.prototype.slice.call(arguments, 2);
+    (function add(list){
+      list.forEach(function(c){
+        if (c == null || c === false) return;
+        if (Array.isArray(c)) return add(c);
+        e.append(c.nodeType ? c : document.createTextNode(String(c)));
+      });
+    })(kids);
+    return e;
+  }
+  function store(k, v){
+    try { if (v === undefined) return JSON.parse(localStorage.getItem(k)); localStorage.setItem(k, JSON.stringify(v)); }
+    catch (e) { return null; }
+  }
+
+  var cur = ENTITIES[0];
+  var logs = [];
+  var registry = store("bgr.ids") || {};
+  var seq = 0;
+
+  /* ---------- Endereço da API ---------- */
+  var baseInput = $("#base");
+  baseInput.value = store("bgr.base") || (location.protocol.indexOf("http") === 0 ? location.origin : "http://localhost:8081");
+  baseInput.addEventListener("change", function(){ store("bgr.base", baseInput.value.trim()); });
+  function apiBase(){ return baseInput.value.trim().replace(/\/+$/, ""); }
+
+  /* ---------- Navegação ---------- */
+  var nav = $("#nav");
+  ENTITIES.forEach(function(en){
+    var b = h("button", {type:"button", "data-key":en.key}, en.label);
+    b.addEventListener("click", function(){ select(en); });
+    nav.append(h("li", {}, b));
+  });
+
+  function select(en){
+    cur = en;
+    Array.prototype.forEach.call(nav.querySelectorAll("button"), function(b){
+      b.setAttribute("aria-current", b.getAttribute("data-key") === en.key ? "true" : "false");
+    });
+    $("#endpoint").replaceChildren("Endpoint: ", h("code", {}, "/" + en.path));
+    $("#recId").value = "";
+    $("#list").replaceChildren(h("p", {class:"empty"}, "Use “Listar (GET)” para carregar os registros desta entidade."));
+    renderForm();
+  }
+
+  /* ---------- Formulário ---------- */
+  function renderForm(){
+    var box = $("#fields");
+    box.replaceChildren();
+    cur.fields.forEach(function(fd){
+      var id = "f-" + fd.n, inp;
+      if (fd.t === "select") {
+        inp = h("select", {id:id, name:fd.n}, h("option", {value:""}, "(vazio)"),
+          fd.o.map(function(o){ return h("option", {value:o}, o); }));
+      } else if (fd.t === "ref") {
+        inp = h("input", {id:id, name:fd.n, type:"text", list:"dl-" + fd.ref, autocomplete:"off", spellcheck:"false", "class":"mono"});
+      } else {
+        var type = fd.t === "date" ? "date" : fd.t === "datetime" ? "datetime-local" :
+                   (fd.t === "int" || fd.t === "float") ? "number" : "text";
+        inp = h("input", {id:id, name:fd.n, type:type, step:(type === "number" ? (fd.t === "int" ? "1" : "any") : null),
+          autocomplete:"off", spellcheck:"false"});
+      }
+      inp.addEventListener("input", preview);
+      inp.addEventListener("change", preview);
+      box.append(h("div", {class:"field"},
+        h("label", {for:id}, h("span", {}, fd.l), h("code", {}, fd.n)), inp));
+    });
+    refreshDatalists();
+    preview();
+  }
+
+  function buildBody(){
+    var nullEmpty = $("#emptyNull").checked, body = {};
+    cur.fields.forEach(function(fd){
+      var v = $("#f-" + fd.n).value;
+      if (fd.t === "int" || fd.t === "float") body[fd.n] = v === "" ? null : Number(v);
+      else if (fd.t === "date" || fd.t === "select") body[fd.n] = v === "" ? null : v;
+      else if (fd.t === "datetime") body[fd.n] = v === "" ? null : (v.length === 16 ? v + ":00" : v);
+      else body[fd.n] = (v === "" && nullEmpty) ? null : v;
+    });
+    return body;
+  }
+  function preview(){
+    if (!$("#manual").checked) $("#json").value = JSON.stringify(buildBody(), null, 2);
+  }
+  $("#manual").addEventListener("change", function(){
+    $("#json").readOnly = !this.checked;
+    if (!this.checked) preview();
+  });
+  $("#emptyNull").addEventListener("change", preview);
+  $("#form").addEventListener("submit", function(e){ e.preventDefault(); });
+
+  function fillForm(obj){
+    cur.fields.forEach(function(fd){
+      if (obj[fd.n] !== undefined && obj[fd.n] !== null) $("#f-" + fd.n).value = String(obj[fd.n]);
+    });
+    if (obj.id) $("#recId").value = obj.id;
+    preview();
+  }
+  function clearForm(){
+    cur.fields.forEach(function(fd){ $("#f-" + fd.n).value = ""; });
+    $("#recId").value = "";
+    preview();
+  }
+
+  /* ---------- IDs criados nesta bancada (sugestões para campos UUID) ---------- */
+  function labelOf(o){ return o.name || o.doctorsOffice || String(o.id).slice(0, 8); }
+  function reg(key, id, label){
+    var list = registry[key] = registry[key] || [];
+    if (!list.some(function(x){ return x.id === id; })) list.push({id:id, label:label});
+    store("bgr.ids", registry); refreshDatalists();
+  }
+  function unreg(key, id){
+    registry[key] = (registry[key] || []).filter(function(x){ return x.id !== id; });
+    store("bgr.ids", registry); refreshDatalists();
+  }
+  function refreshDatalists(){
+    var box = $("#datalists");
+    box.replaceChildren();
+    ["pacientes","doutores","consultorios"].forEach(function(k){
+      box.append(h("datalist", {id:"dl-" + k},
+        (registry[k] || []).map(function(x){ return h("option", {value:x.id}, x.label); })));
+    });
+  }
+
+  /* ---------- Chamadas HTTP ---------- */
+  async function send(method, sub, bodyStr){
+    var url = apiBase() + "/" + cur.path + (sub !== undefined ? "/" + encodeURIComponent(sub) : "");
+    var init = {method:method, headers:{"Accept":"application/json"}};
+    if (bodyStr !== undefined) { init.headers["Content-Type"] = "application/json"; init.body = bodyStr; }
+    var r = {entity:cur, method:method, sub:sub, url:url, req:bodyStr, status:0, statusText:"", text:"", error:null, json:undefined};
+    var t0 = performance.now();
+    try {
+      var res = await fetch(url, init);
+      r.status = res.status; r.statusText = res.statusText; r.text = await res.text();
+    } catch (e) { r.error = String(e && e.message || e); }
+    r.ms = Math.round(performance.now() - t0);
+    try { r.json = r.text ? JSON.parse(r.text) : null; } catch (e) { r.json = undefined; }
+    var exp = $("#expected").value.trim();
+    r.expected = exp;
+    r.pass = exp === "" ? null : String(r.status) === exp;
+    r.caseName = $("#caseName").value.trim();
+    r.when = new Date();
+    show(r); addLog(r); after(r);
+  }
+
+  function chipClass(s){ return s >= 200 && s < 300 ? "ok" : s >= 400 && s < 500 ? "warn" : s === 0 ? "none" : "err"; }
+  function pretty(r){
+    if (r.error) return "Falha de rede: " + r.error + "\n\nVerifique se o backend está no ar e se o endereço da API está correto. Se a tela não estiver sendo servida pelo próprio backend, o CORS precisa estar liberado.";
+    if (r.json !== undefined && r.json !== null) return JSON.stringify(r.json, null, 2);
+    return r.text || "(corpo vazio)";
+  }
+  function show(r){
+    var reqText = r.method + " " + r.url + (r.req !== undefined ? "\n\n" + r.req : "");
+    $("#result").replaceChildren(
+      h("div", {class:"line"},
+        h("span", {class:"chip " + chipClass(r.status)}, r.error ? "Sem resposta" : r.status + " " + r.statusText),
+        h("span", {class:"meta"}, r.ms + " ms"),
+        r.pass === null ? null : h("span", {class:"chip " + (r.pass ? "ok" : "err")}, r.pass ? "Passou (esperado " + r.expected + ")" : "Falhou (esperado " + r.expected + ")")),
+      h("p", {class:"tag"}, "Enviado"), h("pre", {}, reqText),
+      h("p", {class:"tag"}, "Recebido"), h("pre", {}, pretty(r)));
+  }
+
+  function after(r){
+    if (r.status < 200 || r.status > 299) return;
+    if (r.method === "POST" && r.json && r.json.id) {
+      $("#recId").value = r.json.id; reg(r.entity.key, r.json.id, labelOf(r.json));
+    } else if (r.method === "GET" && Array.isArray(r.json)) {
+      renderList(r.json);
+    } else if (r.method === "GET" && r.json && typeof r.json === "object") {
+      fillForm(r.json);
+    } else if (r.method === "DELETE") {
+      unreg(r.entity.key, r.sub); $("#recId").value = "";
+    }
+  }
+
+  /* ---------- Listagem ---------- */
+  function cell(v){ return v === null || v === undefined ? "" : typeof v === "object" ? JSON.stringify(v) : String(v); }
+  function renderList(items){
+    var box = $("#list");
+    if (!items.length) { box.replaceChildren(h("p", {class:"empty"}, "A API não devolveu nenhum registro.")); return; }
+    var cols = [];
+    items.forEach(function(it){ Object.keys(it).forEach(function(k){ if (cols.indexOf(k) < 0) cols.push(k); }); });
+    var hasId = cols.indexOf("id") >= 0;
+    var table = h("table", {},
+      h("thead", {}, h("tr", {}, cols.map(function(c){ return h("th", {}, c); }), h("th", {}, "Ação"))),
+      h("tbody", {}, items.map(function(it){
+        var b = h("button", {type:"button", class:"btn"}, "Usar no formulário");
+        b.addEventListener("click", function(){ fillForm(it); window.scrollTo({top:0}); });
+        return h("tr", {}, cols.map(function(c){ return h("td", {class:c === "id" ? "mono" : null}, cell(it[c])); }), h("td", {}, b));
+      })));
+    box.replaceChildren(
+      h("p", {class:"sub"}, items.length + (items.length === 1 ? " registro" : " registros")),
+      h("div", {class:"tablewrap"}, table),
+      hasId ? null : h("p", {class:"note"}, "As listagens da API não trazem o id dos registros. Para atualizar ou excluir a partir da tabela, adicione o campo id (UUID) aos Response DTOs. Enquanto isso, use o id devolvido pelo POST ou cole um id manualmente."));
+  }
+
+  /* ---------- Histórico ---------- */
+  function addLog(r){
+    logs.unshift({n:++seq, r:r});
+    renderLog();
+  }
+  function renderLog(){
+    var ok = 0, bad = 0;
+    logs.forEach(function(l){ if (l.r.pass === true) ok++; else if (l.r.pass === false) bad++; });
+    $("#logSummary").textContent = logs.length
+      ? logs.length + " chamadas. Com resultado esperado: " + ok + " passaram e " + bad + " falharam."
+      : "Nenhuma chamada registrada.";
+    $("#logBody").replaceChildren.apply($("#logBody"), logs.map(function(l){
+      var r = l.r;
+      return h("tr", {},
+        h("td", {}, l.n),
+        h("td", {}, r.when.toLocaleTimeString("pt-BR")),
+        h("td", {}, r.caseName || ""),
+        h("td", {class:"mono"}, r.method + " /" + r.entity.path + (r.sub !== undefined ? "/" + r.sub : "")),
+        h("td", {}, r.expected || ""),
+        h("td", {}, h("span", {class:"chip " + chipClass(r.status)}, r.error ? "sem resposta" : String(r.status))),
+        h("td", {}, r.pass === null ? "" : h("span", {class:"chip " + (r.pass ? "ok" : "err")}, r.pass ? "Passou" : "Falhou")));
+    }));
+  }
+  $("#clearLog").addEventListener("click", function(){ logs = []; renderLog(); });
+  $("#exportCsv").addEventListener("click", function(){
+    var head = ["n","data_hora","caso","entidade","metodo","url","corpo_enviado","esperado","obtido","resultado","ms","corpo_resposta"];
+    function q(v){ return '"' + String(v === undefined || v === null ? "" : v).replace(/"/g, '""') + '"'; }
+    var rows = logs.slice().reverse().map(function(l){
+      var r = l.r;
+      return [l.n, r.when.toISOString(), r.caseName, r.entity.label, r.method, r.url, r.req, r.expected,
+        r.error ? "sem resposta" : r.status, r.pass === null ? "" : (r.pass ? "Passou" : "Falhou"), r.ms,
+        r.error ? r.error : r.text].map(q).join(",");
+    });
+    var blob = new Blob(["\ufeff" + head.join(",") + "\n" + rows.join("\n")], {type:"text/csv;charset=utf-8"});
+    var a = h("a", {href:URL.createObjectURL(blob), download:"historico-testes.csv"});
+    document.body.append(a); a.click(); a.remove();
+  });
+
+  /* ---------- Ações ---------- */
+  $(".bar[role=group]").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-act]");
+    if (!b) return;
+    var id = $("#recId").value.trim();
+    switch (b.getAttribute("data-act")) {
+      case "post": send("POST", undefined, $("#manual").checked ? $("#json").value : JSON.stringify(buildBody())); break;
+      case "put":  send("PUT", id, $("#manual").checked ? $("#json").value : JSON.stringify(buildBody())); break;
+      case "get":  send("GET", id); break;
+      case "list": send("GET"); break;
+      case "del":  send("DELETE", id); break;
+      case "clear": clearForm(); break;
+    }
+  });
+
+  select(ENTITIES[0]);
+})();
+</script>
+</body>
+</html>
