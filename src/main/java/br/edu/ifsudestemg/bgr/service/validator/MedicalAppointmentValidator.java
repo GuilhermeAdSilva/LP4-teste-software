@@ -49,6 +49,12 @@ public class MedicalAppointmentValidator {
         if (!isTheAddressValid(medicalAppointment)) {
             throw new BusinessRuleException("Endereço inválido");
         }
+
+        if (!validateInitialAppointmentStatus(medicalAppointment)) {
+            if (medicalAppointment.getId() == null) {
+                throw new BusinessRuleException("Status não permitido!");
+            }
+        }
     }
 
     public void putValidate(MedicalAppointment medicalAppointment) {
@@ -73,6 +79,16 @@ public class MedicalAppointmentValidator {
     public boolean isTheAddressValid(MedicalAppointment medicalAppointment) {
         Optional<MedicalOffice> addressFound = addressRepository.findById(medicalAppointment.getAddress().getId());
         return addressFound.isPresent();
+    }
+
+    public boolean validateInitialAppointmentStatus(MedicalAppointment medicalAppointment) {
+        String result = "";
+        MedicalAppointmentStatus status = medicalAppointment.getStatus();
+        if (status == MedicalAppointmentStatus.SCHEDULED ||
+                status == MedicalAppointmentStatus.CONFIRMED) {
+            result = "true";
+        }
+        return result.equals("true");
     }
 
     public boolean validateAppointmentStatusChange(MedicalAppointment medicalAppointment) {
