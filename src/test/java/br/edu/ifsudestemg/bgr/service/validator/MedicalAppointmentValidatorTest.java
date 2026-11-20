@@ -323,7 +323,7 @@ class MedicalAppointmentValidatorTest {
         medicalAppointment.setStatus(MedicalAppointmentStatus.MISSED);
         MedicalAppointment oldMedicalAppointment = new MedicalAppointment();
         oldMedicalAppointment.setStatus(MedicalAppointmentStatus.CONFIRMED);
-        oldMedicalAppointment.setDateTime(LocalDateTime.now().minusMinutes(1));
+        oldMedicalAppointment.setDateTime(LocalDateTime.now());
         when(repository.findById(medicalAppointment.getId())).thenReturn(Optional.of(oldMedicalAppointment));
         boolean result = validator.validateAppointmentStatusChange(medicalAppointment);
         assertTrue(result);
