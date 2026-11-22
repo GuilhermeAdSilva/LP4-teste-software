@@ -1,18 +1,22 @@
 package br.edu.ifsudestemg.bgr.service;
 
+import br.edu.ifsudestemg.bgr.exception.BusinessRuleException;
 import br.edu.ifsudestemg.bgr.model.entity.Patient;
 import br.edu.ifsudestemg.bgr.model.repository.PatientRepository;
+import br.edu.ifsudestemg.bgr.service.interfaces.IPatient;
 import br.edu.ifsudestemg.bgr.service.validator.PatientValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class PatientService {
+public class PatientService implements IPatient {
 
     private final PatientRepository repository;
     private final PatientValidator validator;
@@ -37,5 +41,14 @@ public class PatientService {
 
     public void deletePatient(UUID id) {
         repository.deleteById(id);
+    }
+
+    @Override
+    public Integer calculateAge(UUID patientId) {
+        Optional<Patient> patient = repository.findById(patientId);
+        if (patient.isEmpty()) {
+            throw new BusinessRuleException("Paciente não existe.");
+        }
+        return Period.between(patient.get().getBirthDate(), LocalDate.now()).getYears();
     }
 }

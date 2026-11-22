@@ -18,8 +18,11 @@ public class BloodPressure {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "blood_pressure_level")
-    private Integer bloodPressureLevel;
+    @Column(name = "systolic_blood_pressure_level")
+    private Integer systolicBloodPressureLevel;
+
+    @Column(name = "diastolic_blood_pressure_level")
+    private Integer diastolicBloodPressureLevel;
 
     @Column(name = "registration_date_time")
     @CreatedDate

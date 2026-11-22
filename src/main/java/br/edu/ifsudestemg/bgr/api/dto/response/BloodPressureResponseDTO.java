@@ -5,13 +5,15 @@ import br.edu.ifsudestemg.bgr.model.entity.BloodPressure;
 import java.time.LocalDateTime;
 
 public record BloodPressureResponseDTO(
-        Integer bloodPressureLevel,
+        Integer systolicBloodPressureLevel,
+        Integer diastolicBloodPressureLevel,
         LocalDateTime registrationDateTime,
         String patientName) {
 
     public static BloodPressureResponseDTO entityToDto(BloodPressure bloodPressure) {
         return new BloodPressureResponseDTO(
-                bloodPressure.getBloodPressureLevel(),
+                bloodPressure.getSystolicBloodPressureLevel(),
+                bloodPressure.getDiastolicBloodPressureLevel(),
                 bloodPressure.getRegistrationDateTime(),
                 bloodPressure.getPatient().getName()
         );
